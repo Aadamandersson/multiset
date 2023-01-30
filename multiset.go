@@ -1,5 +1,7 @@
 package multiset
 
+import "golang.org/x/exp/maps"
+
 type Multiset[T comparable] struct {
 	items map[T]int
 	count int
@@ -103,4 +105,25 @@ func (m *Multiset[T]) IsEmpty() bool {
 // Duplicates are counted.
 func (m *Multiset[T]) Len() int {
 	return m.count
+}
+
+// Each iterates over all items and calls f for each item present in
+// multiset m.
+//
+// If f returns true, Each stops the iteration.
+func (m *Multiset[T]) Each(f func(T, int) bool) {
+	for v, n := range m.items {
+		if f(v, n) {
+			break
+		}
+	}
+}
+
+// Equal returns true if the length and items of
+// multiset m and other are equal.
+//
+// TODO: Remove package "golang.org/x/exp/maps" when
+// https://github.com/golang/go/issues/57436 is accepted.
+func (m *Multiset[T]) Equal(other *Multiset[T]) bool {
+	return m.Len() == other.Len() && maps.Equal(m.items, other.items)
 }

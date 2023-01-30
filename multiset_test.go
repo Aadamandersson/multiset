@@ -2,6 +2,7 @@ package multiset_test
 
 import (
 	"fmt"
+	"testing"
 
 	"github.com/aadamandersson/multiset"
 )
@@ -96,4 +97,35 @@ func ExampleMultiset_Len() {
 	fmt.Println(ms.Len())
 	// Output:
 	// 3
+}
+
+func ExampleMultiset_Each() {
+	ms1 := multiset.New[int]()
+	ms1.Insert(10)
+	ms1.Insert(20)
+	ms1.InsertMany(30, 2)
+
+	ms2 := multiset.New[int]()
+	ms1.Each(func(value, multiplicity int) bool {
+		ms2.InsertMany(value, multiplicity)
+		return false
+	})
+	fmt.Println(ms1.Equal(ms2))
+	// Output:
+	// true
+}
+
+func TestEqual(t *testing.T) {
+	ms1 := multiset.New[int]()
+	ms2 := multiset.New[int]()
+
+	ms1.InsertMany(10, 2)
+	ms2.InsertMany(10, 2)
+
+	ms1.Insert(20)
+	ms2.Insert(20)
+
+	if !ms1.Equal(ms2) {
+		t.Errorf("Multisets are not equal: left %v, right %v\n", ms1, ms2)
+	}
 }

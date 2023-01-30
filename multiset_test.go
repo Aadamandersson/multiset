@@ -129,3 +129,44 @@ func TestEqual(t *testing.T) {
 		t.Errorf("Multisets are not equal: left %v, right %v\n", ms1, ms2)
 	}
 }
+
+func TestString(t *testing.T) {
+	cases := []struct {
+		fn   func() string
+		want string
+	}{
+		{
+			fn: func() string {
+				ms := multiset.New[int]()
+				return ms.String()
+			},
+			want: "Multiset{}",
+		},
+		{
+			fn: func() string {
+				ms := multiset.New[int]()
+				ms.InsertMany(1, 2)
+				ms.InsertMany(2, 3)
+				return ms.String()
+			},
+			want: "Multiset{1:2, 2:3}",
+		},
+		{
+			fn: func() string {
+				ms := multiset.New[int]()
+				ms.InsertMany(2, 3)
+				ms.InsertMany(1, 2)
+				ms.InsertMany(3, 4)
+				return ms.String()
+			},
+			want: "Multiset{1:2, 2:3, 3:4}",
+		},
+	}
+
+	for _, c := range cases {
+		got := c.fn()
+		if got != c.want {
+			t.Errorf("String() = %s, want %s", got, c.want)
+		}
+	}
+}

@@ -1,6 +1,12 @@
 package multiset
 
-import "golang.org/x/exp/maps"
+import (
+	"fmt"
+	"sort"
+	"strings"
+
+	"golang.org/x/exp/maps"
+)
 
 type Multiset[T comparable] struct {
 	items map[T]int
@@ -126,4 +132,19 @@ func (m *Multiset[T]) Each(f func(T, int) bool) {
 // https://github.com/golang/go/issues/57436 is accepted.
 func (m *Multiset[T]) Equal(other *Multiset[T]) bool {
 	return m.Len() == other.Len() && maps.Equal(m.items, other.items)
+}
+
+// String returns a formatted multiset with the following format:
+//
+// Multiset{1: 2, 2: 3}
+func (m *Multiset[T]) String() string {
+	items := make([]string, 0, len(m.items))
+
+	m.Each(func(v T, n int) bool {
+		items = append(items, fmt.Sprintf("%v:%d", v, n))
+		return false
+	})
+
+	sort.Strings(items)
+	return fmt.Sprintf("Multiset{%s}", strings.Join(items, ", "))
 }

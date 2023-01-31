@@ -28,7 +28,7 @@ func New[T comparable]() *Multiset[T] {
 // The initial capacity does not bound its size,
 // and it grows to accomodate the number of values stored in it.
 func WithCapacity[T comparable](n int) *Multiset[T] {
-	return &Multiset[T]{items: make(map[T]int), count: n}
+	return &Multiset[T]{items: make(map[T]int, n), count: 0}
 }
 
 // Insert inserts a new value v to multiset m.
@@ -56,6 +56,41 @@ func (m *Multiset[T]) InsertMany(v T, n int) int {
 		m.items[v] = n
 	}
 	return pn
+}
+
+// Union constructs a new multiset union of multiset m and other.
+//
+// The resulting multiset is a multiset of the maximum multiplicity
+// of items present in m and other.
+func (m *Multiset[T]) Union(other *Multiset[T]) *Multiset[T] {
+	result := WithCapacity[T](max(len(m.items), len(other.items)))
+	m.Each(func(v T, n int) bool {
+		result.InsertMany(v, n)
+		return false
+	})
+
+	other.Each(func(otherV T, otherN int) bool {
+		if n, ok := result.items[otherV]; !ok || otherN > n {
+			result.count -= n
+			result.items[otherV] = otherN
+			result.count += otherN
+		}
+		return false
+	})
+
+	return result
+}
+
+// Replace replaces all existing occurences of value v in multiset m, if any, with 1.
+//
+// Replace returns the number of occurences of value v previously in
+// multiset m.
+func (m *Multiset[T]) Replace(v T) int {
+	n := m.items[v]
+	m.count -= n
+	m.items[v] = 1
+	m.count += 1
+	return n
 }
 
 // Remove removes value v from multiset m.
@@ -147,4 +182,12 @@ func (m *Multiset[T]) String() string {
 
 	sort.Strings(items)
 	return fmt.Sprintf("Multiset{%s}", strings.Join(items, ", "))
+}
+
+// max returns the larger of x or y.
+func max(x, y int) int {
+	if x < y {
+		return y
+	}
+	return x
 }

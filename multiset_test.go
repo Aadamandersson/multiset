@@ -37,6 +37,35 @@ func ExampleMultiset_InsertMany() {
 	// 0
 }
 
+func ExampleMultiset_Union() {
+	ms1 := multiset.New[string]()
+	ms1.InsertMany("a", 2)
+	ms1.InsertMany("b", 3)
+	ms1.InsertMany("c", 1)
+	ms1.InsertMany("d", 2)
+
+	ms2 := multiset.New[string]()
+	ms2.InsertMany("b", 2)
+	ms2.InsertMany("c", 3)
+	ms2.InsertMany("d", 2)
+	ms2.InsertMany("e", 1)
+	fmt.Println(ms1.Union(ms2))
+	// Output:
+	// Multiset{a:2, b:3, c:3, d:2, e:1}
+}
+
+func ExampleMultiset_Replace() {
+	ms := multiset.New[int]()
+	ms.InsertMany(10, 2)
+	fmt.Println(ms.Get(10))
+	fmt.Println(ms.Replace(10))
+	fmt.Println(ms.Get(10))
+	// Output:
+	// 10 2 true
+	// 2
+	// 10 1 true
+}
+
 func ExampleMultiset_Remove() {
 	ms := multiset.New[int]()
 	ms.InsertMany(10, 2)
@@ -168,5 +197,32 @@ func TestString(t *testing.T) {
 		if got != c.want {
 			t.Errorf("String() = %s, want %s", got, c.want)
 		}
+	}
+}
+
+func TestUnion(t *testing.T) {
+	ms1 := multiset.New[string]()
+	ms1.InsertMany("a", 2)
+	ms1.InsertMany("b", 3)
+	ms1.InsertMany("c", 1)
+	ms1.InsertMany("d", 2)
+
+	ms2 := multiset.New[string]()
+	ms2.InsertMany("b", 2)
+	ms2.InsertMany("c", 3)
+	ms2.InsertMany("d", 2)
+	ms2.InsertMany("e", 1)
+
+	got := ms1.Union(ms2)
+	want := multiset.New[string]()
+	want.InsertMany("a", 2)
+	want.InsertMany("b", 3)
+	want.InsertMany("c", 3)
+	want.InsertMany("d", 2)
+	want.InsertMany("e", 1)
+
+	if !got.Equal(want) {
+		t.Errorf("Len() = %d, want %d\n", got.Len(), want.Len())
+		t.Errorf("Union(%v, %v) = %v, want %v\n", ms1, ms2, got, want)
 	}
 }

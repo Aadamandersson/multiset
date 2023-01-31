@@ -54,6 +54,41 @@ func ExampleMultiset_Union() {
 	// Multiset{a:2, b:3, c:3, d:2, e:1}
 }
 
+func ExampleMultiset_Intersection() {
+	ms1 := multiset.New[string]()
+	ms1.InsertMany("a", 3)
+	ms1.InsertMany("b", 2)
+	ms1.InsertMany("c", 3)
+	ms1.InsertMany("d", 1)
+
+	ms2 := multiset.New[string]()
+	ms2.InsertMany("a", 2)
+	ms2.InsertMany("b", 1)
+	ms2.InsertMany("c", 1)
+	fmt.Println(ms1.Intersection(ms2))
+	// Output:
+	// Multiset{a:2, b:1, c:1}
+}
+
+func ExampleMultiset_Difference() {
+	ms1 := multiset.New[string]()
+	ms1.InsertMany("a", 3)
+	ms1.InsertMany("b", 2)
+	ms1.InsertMany("c", 1)
+
+	ms2 := multiset.New[string]()
+	ms2.InsertMany("a", 2)
+	ms2.InsertMany("b", 1)
+	ms2.InsertMany("c", 1)
+	ms2.InsertMany("d", 1)
+	result := ms1.Difference(ms2)
+	fmt.Println(result)
+	fmt.Println(result.Len())
+	// Output:
+	// Multiset{a:1, b:1}
+	// 2
+}
+
 func ExampleMultiset_Replace() {
 	ms := multiset.New[int]()
 	ms.InsertMany(10, 2)

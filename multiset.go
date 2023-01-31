@@ -81,6 +81,43 @@ func (m *Multiset[T]) Union(other *Multiset[T]) *Multiset[T] {
 	return result
 }
 
+// Intersection constructs a new multiset intersection of multiset m and other.
+//
+// The resulting multiset is a multiset of the minimum multiplicity
+// of items present in m and other.
+func (m *Multiset[T]) Intersection(other *Multiset[T]) *Multiset[T] {
+	result := WithCapacity[T](max(len(m.items), len(other.items)))
+	m.Each(func(v T, n int) bool {
+		if otherN, ok := other.items[v]; ok && otherN < n {
+			newN := min(n, otherN)
+			result.items[v] = newN
+			result.count += newN
+		}
+		return false
+	})
+
+	return result
+}
+
+// Difference constructs a new multiset difference of multiset m and other.
+//
+// The resulting multiset is a multiset whose multiplicities represents
+// how many more of a given item are in m than other.
+func (m *Multiset[T]) Difference(other *Multiset[T]) *Multiset[T] {
+	result := WithCapacity[T](len(m.items))
+	m.Each(func(v T, n int) bool {
+		otherN, ok := other.items[v]
+		newN := n - otherN
+		if ok && newN > 0 || !ok {
+			result.items[v] = newN
+			result.count += newN
+		}
+		return false
+	})
+
+	return result
+}
+
 // Replace replaces all existing occurences of value v in multiset m, if any, with 1.
 //
 // Replace returns the number of occurences of value v previously in
@@ -187,6 +224,14 @@ func (m *Multiset[T]) String() string {
 // max returns the larger of x or y.
 func max(x, y int) int {
 	if x < y {
+		return y
+	}
+	return x
+}
+
+// min returns the smaller of x or y.
+func min(x, y int) int {
+	if x > y {
 		return y
 	}
 	return x

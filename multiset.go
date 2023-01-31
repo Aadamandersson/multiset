@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-
-	"golang.org/x/exp/maps"
 )
 
 type Multiset[T comparable] struct {
@@ -200,10 +198,19 @@ func (m *Multiset[T]) Each(f func(T, int) bool) {
 // Equal returns true if the length and items of
 // multiset m and other are equal.
 //
-// TODO: Remove package "golang.org/x/exp/maps" when
-// https://github.com/golang/go/issues/57436 is accepted.
+// TODO: Update this when https://github.com/golang/go/issues/57436 lands.
 func (m *Multiset[T]) Equal(other *Multiset[T]) bool {
-	return m.Len() == other.Len() && maps.Equal(m.items, other.items)
+	if m.Len() != other.Len() || len(m.items) != len(other.items) {
+		return false
+	}
+
+	for v, n := range m.items {
+		if otherN, ok := other.items[v]; !ok || n != otherN {
+			return false
+		}
+	}
+
+	return true
 }
 
 // String returns a formatted multiset with the following format:

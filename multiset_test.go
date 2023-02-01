@@ -70,6 +70,21 @@ func ExampleMultiset_Intersection() {
 	// Multiset{a:2, b:1, c:1}
 }
 
+func ExampleMultiset_Sum() {
+	ms1 := multiset.New[string]()
+	ms1.InsertMany("a", 2)
+	ms1.InsertMany("b", 3)
+	ms1.InsertMany("d", 1)
+
+	ms2 := multiset.New[string]()
+	ms2.InsertMany("a", 1)
+	ms2.InsertMany("b", 3)
+	ms2.InsertMany("c", 2)
+	fmt.Println(ms1.Sum(ms2))
+	// Output:
+	// Multiset{a:3, b:6, c:2, d:1}
+}
+
 func ExampleMultiset_Difference() {
 	ms1 := multiset.New[string]()
 	ms1.InsertMany("a", 3)
@@ -159,6 +174,16 @@ func ExampleMultiset_Len() {
 	ms.Insert(10)
 	ms.Insert(20)
 	fmt.Println(ms.Len())
+	// Output:
+	// 3
+}
+
+func ExampleMultiset_Cardinality() {
+	ms := multiset.New[int]()
+	ms.InsertMany(10, 1)
+	ms.InsertMany(20, 2)
+	ms.InsertMany(30, 3)
+	fmt.Println(ms.Cardinality())
 	// Output:
 	// 3
 }

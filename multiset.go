@@ -61,11 +61,21 @@ func (m *Multiset[T]) InsertMany(v T, n int) int {
 // The resulting multiset is a multiset of the maximum multiplicity
 // of items present in m and other.
 func (m *Multiset[T]) Union(other *Multiset[T]) *Multiset[T] {
-	result := WithCapacity[T](max(len(m.items), len(other.items)))
+	var result *Multiset[T]
+	if other == nil {
+		result = WithCapacity[T](len(m.items))
+	} else {
+		result = WithCapacity[T](max(len(m.items), len(other.items)))
+	}
+
 	m.Each(func(v T, n int) bool {
 		result.InsertMany(v, n)
 		return false
 	})
+
+	if other == nil {
+		return result
+	}
 
 	other.Each(func(otherV T, otherN int) bool {
 		if n, ok := result.items[otherV]; !ok || otherN > n {
@@ -90,6 +100,41 @@ func (m *Multiset[T]) Intersection(other *Multiset[T]) *Multiset[T] {
 			newN := min(n, otherN)
 			result.items[v] = newN
 			result.count += newN
+		}
+		return false
+	})
+
+	return result
+}
+
+// Sum constructs a new multiset sum of multiset m and other.
+//
+// The resulting multiset is a multiset whose multiplicities represents
+// how many times a given item occur in both m and other.
+func (m *Multiset[T]) Sum(other *Multiset[T]) *Multiset[T] {
+	var result *Multiset[T]
+	if other == nil {
+		result = WithCapacity[T](len(m.items))
+	} else {
+		result = WithCapacity[T](max(len(m.items), len(other.items)))
+	}
+
+	m.Each(func(v T, n int) bool {
+		result.InsertMany(v, n)
+		return false
+	})
+
+	if other == nil {
+		return result
+	}
+
+	other.Each(func(otherV T, otherN int) bool {
+		if n, ok := result.items[otherV]; ok {
+			result.items[otherV] = n + otherN
+			result.count += otherN
+		} else {
+			result.items[otherV] = otherN
+			result.count += otherN
 		}
 		return false
 	})
@@ -181,6 +226,13 @@ func (m *Multiset[T]) IsEmpty() bool {
 // Duplicates are counted.
 func (m *Multiset[T]) Len() int {
 	return m.count
+}
+
+// Cardinality returns the number of items in multiset m.
+//
+// Multiplicity of an item is not considered.
+func (m *Multiset[T]) Cardinality() int {
+	return len(m.items)
 }
 
 // Each iterates over all items and calls f for each item present in

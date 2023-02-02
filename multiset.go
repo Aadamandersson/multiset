@@ -47,12 +47,9 @@ func (m *Multiset[T]) InsertMany(v T, n int) int {
 	}
 
 	m.count += n
-	pn, ok := m.items[v]
-	if ok {
-		m.items[v] = pn + n
-	} else {
-		m.items[v] = n
-	}
+	pn := m.items[v]
+	m.items[v] = pn + n
+
 	return pn
 }
 
@@ -61,18 +58,7 @@ func (m *Multiset[T]) InsertMany(v T, n int) int {
 // The resulting multiset is a multiset of the maximum multiplicity
 // of items present in m and other.
 func (m *Multiset[T]) Union(other *Multiset[T]) *Multiset[T] {
-	var result *Multiset[T]
-	if other == nil {
-		result = WithCapacity[T](len(m.items))
-	} else {
-		result = WithCapacity[T](max(len(m.items), len(other.items)))
-	}
-
-	m.Each(func(v T, n int) bool {
-		result.InsertMany(v, n)
-		return false
-	})
-
+	result := m.Clone()
 	if other == nil {
 		return result
 	}
@@ -112,30 +98,13 @@ func (m *Multiset[T]) Intersection(other *Multiset[T]) *Multiset[T] {
 // The resulting multiset is a multiset whose multiplicities represents
 // how many times a given item occur in both m and other.
 func (m *Multiset[T]) Sum(other *Multiset[T]) *Multiset[T] {
-	var result *Multiset[T]
-	if other == nil {
-		result = WithCapacity[T](len(m.items))
-	} else {
-		result = WithCapacity[T](max(len(m.items), len(other.items)))
-	}
-
-	m.Each(func(v T, n int) bool {
-		result.InsertMany(v, n)
-		return false
-	})
-
+	result := m.Clone()
 	if other == nil {
 		return result
 	}
 
 	other.Each(func(otherV T, otherN int) bool {
-		if n, ok := result.items[otherV]; ok {
-			result.items[otherV] = n + otherN
-			result.count += otherN
-		} else {
-			result.items[otherV] = otherN
-			result.count += otherN
-		}
+		result.InsertMany(otherV, otherN)
 		return false
 	})
 
@@ -245,6 +214,16 @@ func (m *Multiset[T]) Each(f func(T, int) bool) {
 			break
 		}
 	}
+}
+
+// Clone returns a new multiset which is a copy of multiset m.
+func (m *Multiset[T]) Clone() *Multiset[T] {
+	result := WithCapacity[T](m.Cardinality())
+	m.Each(func(v T, n int) bool {
+		result.InsertMany(v, n)
+		return false
+	})
+	return result
 }
 
 // Equal returns true if the length and items of

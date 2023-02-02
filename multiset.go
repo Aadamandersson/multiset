@@ -59,7 +59,7 @@ func (m *Multiset[T]) InsertMany(v T, n int) int {
 // of items present in m and other.
 func (m *Multiset[T]) Union(other *Multiset[T]) *Multiset[T] {
 	result := m.Clone()
-	if other == nil {
+	if other == nil || other.IsEmpty() {
 		return result
 	}
 
@@ -80,9 +80,13 @@ func (m *Multiset[T]) Union(other *Multiset[T]) *Multiset[T] {
 // The resulting multiset is a multiset of the minimum multiplicity
 // of items present in m and other.
 func (m *Multiset[T]) Intersection(other *Multiset[T]) *Multiset[T] {
+	if other == nil || other.IsEmpty() {
+		return New[T]()
+	}
+
 	result := WithCapacity[T](max(len(m.items), len(other.items)))
 	m.Each(func(v T, n int) bool {
-		if otherN, ok := other.items[v]; ok && otherN < n {
+		if otherN, ok := other.items[v]; ok {
 			newN := min(n, otherN)
 			result.items[v] = newN
 			result.count += newN
@@ -99,7 +103,7 @@ func (m *Multiset[T]) Intersection(other *Multiset[T]) *Multiset[T] {
 // how many times a given item occur in both m and other.
 func (m *Multiset[T]) Sum(other *Multiset[T]) *Multiset[T] {
 	result := m.Clone()
-	if other == nil {
+	if other == nil || other.IsEmpty() {
 		return result
 	}
 
@@ -116,6 +120,10 @@ func (m *Multiset[T]) Sum(other *Multiset[T]) *Multiset[T] {
 // The resulting multiset is a multiset whose multiplicities represents
 // how many more of a given item are in m than other.
 func (m *Multiset[T]) Difference(other *Multiset[T]) *Multiset[T] {
+	if other == nil || other.IsEmpty() {
+		return m.Clone()
+	}
+
 	result := WithCapacity[T](len(m.items))
 	m.Each(func(v T, n int) bool {
 		otherN, ok := other.items[v]

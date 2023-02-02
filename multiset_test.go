@@ -316,6 +316,20 @@ func TestUnion(t *testing.T) {
 		{
 			gotFn: func() *multiset.Multiset[string] {
 				ms1 := multiset.New[string]()
+				ms1.InsertMany("a", 3)
+
+				var ms2 *multiset.Multiset[string]
+				return ms1.Union(ms2)
+			},
+			wantFn: func() *multiset.Multiset[string] {
+				ms := multiset.New[string]()
+				ms.InsertMany("a", 3)
+				return ms
+			},
+		},
+		{
+			gotFn: func() *multiset.Multiset[string] {
+				ms1 := multiset.New[string]()
 				ms1.InsertMany("a", 2)
 				ms1.InsertMany("b", 3)
 				ms1.InsertMany("c", 1)
@@ -346,6 +360,88 @@ func TestUnion(t *testing.T) {
 		if !got.Equal(want) {
 			t.Errorf("Len() = %d, want %d\n", got.Len(), want.Len())
 			t.Errorf("Union() = %v, want %v", got, want)
+		}
+	}
+}
+
+func TestIntersection(t *testing.T) {
+	cases := []struct {
+		gotFn  func() *multiset.Multiset[string]
+		wantFn func() *multiset.Multiset[string]
+	}{
+		{
+			gotFn: func() *multiset.Multiset[string] {
+				ms1 := multiset.New[string]()
+				ms1.InsertMany("a", 3)
+				ms1.InsertMany("b", 2)
+
+				ms2 := multiset.New[string]()
+				ms2.InsertMany("a", 2)
+				ms2.InsertMany("b", 3)
+				return ms1.Intersection(ms2)
+			},
+			wantFn: func() *multiset.Multiset[string] {
+				ms := multiset.New[string]()
+				ms.InsertMany("a", 2)
+				ms.InsertMany("b", 2)
+				return ms
+			},
+		},
+		{
+			gotFn: func() *multiset.Multiset[string] {
+				ms1 := multiset.New[string]()
+				ms1.InsertMany("a", 3)
+
+				ms2 := multiset.New[string]()
+				return ms1.Intersection(ms2)
+			},
+			wantFn: func() *multiset.Multiset[string] {
+				return multiset.New[string]()
+			},
+		},
+		{
+			gotFn: func() *multiset.Multiset[string] {
+				ms1 := multiset.New[string]()
+				ms1.InsertMany("a", 3)
+
+				var ms2 *multiset.Multiset[string]
+				return ms1.Intersection(ms2)
+			},
+			wantFn: func() *multiset.Multiset[string] {
+				return multiset.New[string]()
+			},
+		},
+		{
+			gotFn: func() *multiset.Multiset[string] {
+				ms1 := multiset.New[string]()
+				ms1.InsertMany("a", 2)
+				ms1.InsertMany("b", 3)
+				ms1.InsertMany("c", 1)
+				ms1.InsertMany("d", 2)
+
+				ms2 := multiset.New[string]()
+				ms2.InsertMany("b", 2)
+				ms2.InsertMany("c", 3)
+				ms2.InsertMany("d", 2)
+				ms2.InsertMany("e", 1)
+				return ms1.Intersection(ms2)
+			},
+			wantFn: func() *multiset.Multiset[string] {
+				ms := multiset.New[string]()
+				ms.InsertMany("b", 2)
+				ms.InsertMany("c", 1)
+				ms.InsertMany("d", 2)
+				return ms
+			},
+		},
+	}
+
+	for _, c := range cases {
+		got := c.gotFn()
+		want := c.wantFn()
+		if !got.Equal(want) {
+			t.Errorf("Len() = %d, want %d\n", got.Len(), want.Len())
+			t.Errorf("Intersection() = %v, want %v", got, want)
 		}
 	}
 }
@@ -392,6 +488,20 @@ func TestSum(t *testing.T) {
 		{
 			gotFn: func() *multiset.Multiset[string] {
 				ms1 := multiset.New[string]()
+				ms1.InsertMany("a", 3)
+
+				var ms2 *multiset.Multiset[string]
+				return ms1.Sum(ms2)
+			},
+			wantFn: func() *multiset.Multiset[string] {
+				ms := multiset.New[string]()
+				ms.InsertMany("a", 3)
+				return ms
+			},
+		},
+		{
+			gotFn: func() *multiset.Multiset[string] {
+				ms1 := multiset.New[string]()
 				ms1.InsertMany("a", 2)
 				ms1.InsertMany("b", 3)
 				ms1.InsertMany("c", 1)
@@ -422,6 +532,93 @@ func TestSum(t *testing.T) {
 		if !got.Equal(want) {
 			t.Errorf("Len() = %d, want %d\n", got.Len(), want.Len())
 			t.Errorf("Sum() = %v, want %v", got, want)
+		}
+	}
+}
+
+func TestDifference(t *testing.T) {
+	cases := []struct {
+		gotFn  func() *multiset.Multiset[string]
+		wantFn func() *multiset.Multiset[string]
+	}{
+		{
+			gotFn: func() *multiset.Multiset[string] {
+				ms1 := multiset.New[string]()
+				ms1.InsertMany("a", 3)
+				ms1.InsertMany("b", 3)
+
+				ms2 := multiset.New[string]()
+				ms2.InsertMany("a", 2)
+				ms2.InsertMany("b", 2)
+				return ms1.Difference(ms2)
+			},
+			wantFn: func() *multiset.Multiset[string] {
+				ms := multiset.New[string]()
+				ms.InsertMany("a", 1)
+				ms.InsertMany("b", 1)
+				return ms
+			},
+		},
+		{
+			gotFn: func() *multiset.Multiset[string] {
+				ms1 := multiset.New[string]()
+				ms1.InsertMany("a", 3)
+				ms1.InsertMany("b", 4)
+
+				ms2 := multiset.New[string]()
+				return ms1.Difference(ms2)
+			},
+			wantFn: func() *multiset.Multiset[string] {
+				ms := multiset.New[string]()
+				ms.InsertMany("a", 3)
+				ms.InsertMany("b", 4)
+				return ms
+			},
+		},
+		{
+			gotFn: func() *multiset.Multiset[string] {
+				ms1 := multiset.New[string]()
+				ms1.InsertMany("a", 3)
+
+				var ms2 *multiset.Multiset[string]
+				return ms1.Difference(ms2)
+			},
+			wantFn: func() *multiset.Multiset[string] {
+				ms := multiset.New[string]()
+				ms.InsertMany("a", 3)
+				return ms
+			},
+		},
+		{
+			gotFn: func() *multiset.Multiset[string] {
+				ms1 := multiset.New[string]()
+				ms1.InsertMany("a", 2)
+				ms1.InsertMany("b", 3)
+				ms1.InsertMany("c", 1)
+				ms1.InsertMany("d", 2)
+
+				ms2 := multiset.New[string]()
+				ms2.InsertMany("b", 2)
+				ms2.InsertMany("c", 3)
+				ms2.InsertMany("d", 2)
+				ms2.InsertMany("e", 1)
+				return ms1.Difference(ms2)
+			},
+			wantFn: func() *multiset.Multiset[string] {
+				ms := multiset.New[string]()
+				ms.InsertMany("a", 2)
+				ms.InsertMany("b", 1)
+				return ms
+			},
+		},
+	}
+
+	for _, c := range cases {
+		got := c.gotFn()
+		want := c.wantFn()
+		if !got.Equal(want) {
+			t.Errorf("Len() = %d, want %d\n", got.Len(), want.Len())
+			t.Errorf("Difference() = %v, want %v", got, want)
 		}
 	}
 }

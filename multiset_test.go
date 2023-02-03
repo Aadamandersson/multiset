@@ -31,10 +31,12 @@ func ExampleMultiset_InsertMany() {
 	fmt.Println(ms.InsertMany(10, 2))
 	fmt.Println(ms.InsertMany(10, 4))
 	fmt.Println(ms.InsertMany(20, 6))
+	fmt.Println(ms.InsertMany(20, 0))
 	// Output:
 	// 0
 	// 2
 	// 0
+	// 6
 }
 
 func ExampleMultiset_Union() {
@@ -124,9 +126,11 @@ func ExampleMultiset_Remove() {
 	fmt.Println(ms.Contains(10))
 	ms.Remove(10)
 	fmt.Println(ms.Contains(10))
+	fmt.Println(ms.Remove(10))
 	// Output:
 	// 2
 	// 1
+	// 0
 	// 0
 }
 
